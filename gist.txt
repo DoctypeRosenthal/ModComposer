@@ -1,3 +1,5 @@
+This is the basic implementation idea. I used git, comments and unix file manipulation commands.
+
 ============== 1. INITIAL CONFIG ============== 
 
 GAME_PATH=<user input>
