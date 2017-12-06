@@ -1,0 +1,63 @@
+============== 1. INITIAL CONFIG ============== 
+
+GAME_PATH=<user input>
+PATH_TO_MODS=<user input>
+cd $GAME_PATH
+git init   
+git config user.email "you@example.com"
+git config user.name "Your Name"
+git commit -am "init"  
+
+
+============== 2. NEW MOD CONFIG ============== 
+
+MOD_CONFIG_NAME=<user input>
+git checkout master
+TMP="" # reset TMP
+	# For every mod the user selected:
+	# Check for each file in the mod's files: does it already exist?
+	# if yes: 
+		# check if the file is already in the index.
+		# if yes: continue
+		# if no:
+		git add <FILE_NAME>
+		
+	# if not (its new): write its filename to a tmp session variable, to add it later from there
+	TMP=$TMP" <FILE_NAME>
+	
+# commit initial state of files
+git commit -am "init file states"
+# now checkout new branch
+git checkout -b $MOD_CONFIG_NAME
+# copy everything. Overwrite without warning:
+cp -r $PATH_TO_MODS/<MOD_NAME>/. . 
+# add new files to index
+git add $TMP
+git commit -am "created "$MOD_CONFIG_NAME
+
+
+============== 3. SWITCH TO ANOTHER EXISTING MOD CONFIG ============== 
+
+git checkout <MOD_CONFIG_NAME>
+
+
+============== 4. MAKE CHANGES TO A MOD CONFIG ============== 
+
+git checkout <MOD_CONFIG_NAME>
+TMP="" # reset TMP
+# add mods to this config by overwriting existing files or create new ones
+	# For every mod the user selected:
+	# Check for each file in the mod's files: does it already exist?
+	# if yes: 
+		# check if the file is already in the index.
+		# if yes: continue
+		# if no:
+		git add <FILE_NAME>
+		
+	# if not (its new): write its filename to a tmp session variable, to add it later from there
+	TMP=$TMP" <FILE_NAME>
+# copy everything. Overwrite without warning:
+cp -r $PATH_TO_MODS/<MOD_NAME>/. . 		
+# add new files to index
+git add $TMP
+git commit -am "modified "<MOD_CONFIG_NAME>
