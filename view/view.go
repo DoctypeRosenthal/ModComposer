@@ -5,6 +5,7 @@ import (
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
 	"strings"
+	"fmt"
 )
 
 var ui UiControls
@@ -17,6 +18,7 @@ func Update(s AppState) {
 
 func Render(e EventHandler) {
 	var inTE *walk.TextEdit
+	var treeView *walk.TreeView
 
 	defer MainWindow{
 		Title:   "SCREAMO",
@@ -27,6 +29,14 @@ func Render(e EventHandler) {
 				Children: []Widget{
 					TextEdit{AssignTo: &inTE},
 					TextEdit{AssignTo: &ui.OutTE, ReadOnly: true},
+				},
+			},
+			TreeView{
+				AssignTo: &treeView,
+				//Model:    treeModel,
+				OnCurrentItemChanged: func() {
+					dir := treeView.CurrentItem()
+					fmt.Println(dir)
 				},
 			},
 			PushButton{
