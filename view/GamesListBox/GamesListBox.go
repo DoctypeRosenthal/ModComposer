@@ -1,7 +1,6 @@
 package GamesListBox
 
 import (
-	. "ModComposer/types"
 	"github.com/lxn/walk"
 	. "github.com/lxn/walk/declarative"
 )
@@ -10,24 +9,29 @@ var ui struct {
 	gamesList *walk.ListBox
 }
 
-type Config struct {
+type Events struct {
+	OnSelectGame func(int)
+}
+
+type Model struct {
 	Games []string
-	OnSelectGameFromList func(int)
+	SelectedIndex int
 }
 
-func Update(state AppState) {
-	ui.gamesList.SetModel(state.Games)
-	ui.gamesList.SetCurrentIndex(state.SelectedGameID)
+func Update(m Model) {
+	ui.gamesList.SetModel(m.Games)
+	ui.gamesList.SetCurrentIndex(m.SelectedIndex)
 }
 
-func Create(cnf Config) ListBox {
+func Create(model Model, evts Events) ListBox {
 	return ListBox{
 		AssignTo: &ui.gamesList,
-		Model: cnf.Games,
+		Model:    model.Games,
+		CurrentIndex: model.SelectedIndex,
 		OnSelectedIndexesChanged: func() {
 			var i = ui.gamesList.CurrentIndex()
 			if i > -1 {
-				cnf.OnSelectGameFromList(i)
+				evts.OnSelectGame(i)
 			}
 		},
 	}

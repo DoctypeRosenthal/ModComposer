@@ -10,35 +10,47 @@ import (
 
 var ui struct {
 	mw        *walk.MainWindow
-	disabledBtn *walk.PushButton
+	removeBtn *walk.PushButton
+	currentGamePath *walk.Label
 }
 
-type Config struct {
-	SelectedGameID int
-	Games          GamesList
-
+type Events struct {
 	OnChangeCurrentGamePath, OnDeleteFile, OnAddGame func(string)
 	OnCopyFile                                       func(string, string)
 	OnSelectGameFromList                             func(int)
 	OnRemoveSelectedGameFromList                     func()
 }
 
-func Update(state AppState) {
-	currGame := state.Games[state.SelectedGameID]
-	ui.mw.SetTitle(currGame.Path+" - ModComposer")
-	ui.disabledBtn.SetEnabled(state.SelectedGameID > -1)
-	GamesListBox.Update(state)
+type Model struct {
+	SelectedGameID int
+	Games          GamesList
+}
+
+func Update(model Model) {
+	ui.mw.SetTitle(createWindowTitle(model))
+	ui.removeBtn.SetEnabled(model.SelectedGameID > -1)
+	ui.currentGamePath.SetText(createGamePath(model))
+
+	GamesListBox.Update(GamesListBox.Model{model.Games.Names(), model.SelectedGameID})
+}
+
+func createWindowTitle(model Model) string {
+	var title = "ModComposer"
+	if len(model.Games) > 0 {
+		title = model.Games[model.SelectedGameID].Name + " - ModComposer"
+	}
+	return title
 }
 
 // creates the main window
-func Create(cnf Config) MainWindow {
+func Create(model Model, evts Events) MainWindow {
 	var wf = new(walk.Form)
 
 	return MainWindow{
 		AssignTo: &ui.mw,
-		Title:   "ModComposer",
-		MinSize: Size{600, 400},
-		Layout:  HBox{},
+		Title:    createWindowTitle(model),
+		MinSize:  Size{600, 400},
+		Layout:   HBox{},
 		Children: []Widget{
 			Composite{
 				Layout: Grid{
@@ -49,10 +61,13 @@ func Create(cnf Config) MainWindow {
 					Label {
 						Text: "Games:",
 					},
-					GamesListBox.Create(GamesListBox.Config{
-						cnf.Games.GameNames(),
-						cnf.OnSelectGameFromList,
-					}),
+					GamesListBox.Create(
+						GamesListBox.Model{
+							SelectedIndex: model.SelectedGameID,
+							Games: model.Games.Names(),
+						},
+						GamesListBox.Events{ evts.OnSelectGameFromList, },
+					),
 					Composite{
 						Layout: Grid{
 							Columns:2,
@@ -64,42 +79,71 @@ func Create(cnf Config) MainWindow {
 								MaxSize: Size{Width: 50},
 								OnClicked: func() {
 									PathDialog.Create(PathDialog.Events{
-										OnSelectDir: cnf.OnAddGame,
+										OnSelectDir: evts.OnAddGame,
 									}).Run(*wf)
 								},
 							},
 							PushButton{
 								Text:      "- Delete",
-								AssignTo:  &ui.disabledBtn,
+								AssignTo:  &ui.removeBtn,
 								Enabled:   false,
 								MaxSize:   Size{Width: 60},
-								OnClicked: cnf.OnRemoveSelectedGameFromList,
+								OnClicked: evts.OnRemoveSelectedGameFromList,
 							},
 						},
 					},
 
 				},
 			},
+/*
 			HSeparator{
 				MinSize: Size{Height: 1},
 			},
+*/
+			Composite{
+				Layout: Grid{
+					Rows:     3,
+					MarginsZero: true,
+				},
+				Children: []Widget{
+					Label {
+						MaxSize: Size{Height:12},
+						AssignTo: &ui.currentGamePath,
+						Text: createGamePath(model),
 
-			HSplitter{
+					},
+					PushButton{
+						Text: "+ Select ModFolder",
+						OnClicked: func() {
+
+						},
+					},
+				},
+			},
+			VSplitter{
 				Children: []Widget{
 					PushButton{
 						Text: "Kopiere Datei",
 						OnClicked: func() {
-							cnf.OnCopyFile("./gist.txt", "./gist2.txt")
+							evts.OnCopyFile("./gist.txt", "./gist2.txt")
 						},
 					},
 					PushButton{
 						Text: "Lösche Datei",
 						OnClicked: func() {
-							cnf.OnDeleteFile("./gist2.txt")
+							evts.OnDeleteFile("./gist2.txt")
 						},
 					},
 				},
 			},
 		},
 	}
+}
+func createGamePath(model Model) string {
+	var out = "Game path: "
+	if len(model.Games) > 0 {
+		out += model.Games[model.SelectedGameID].Path
+	}
+	return out
+
 }

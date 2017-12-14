@@ -35,6 +35,7 @@ func Create(evt Events) Dialog {
 			TreeView{
 				AssignTo: &ui.treeView,
 				Model:    treeModel,
+				ItemHeight: 22,
 				OnCurrentItemChanged: func() {
 					ui.LE.SetText(ui.treeView.CurrentItem().(*file.Directory).Path())
 				},

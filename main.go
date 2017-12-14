@@ -31,11 +31,9 @@ func main() {
 	check(err, "State loaded from "+PATH_TO_STATE)
 
 	store.Initialise(initState)
-	st := store.GetState()
-
-	var cnf = view.Config{
-		Games: st.Games,
-
+	state := store.GetState()
+	var model = view.Model{state.SelectedGameID, state.Games}
+	var evts = view.Events{
 		OnSelectGameFromList: func(i int) {
 			store.ActivateGameFromList(i)
 		},
@@ -68,6 +66,8 @@ func main() {
 		},
 	}
 
-	store.Subscribe(view.Update)
-	view.Create(cnf).Run()
+	store.Subscribe(func(state AppState) {
+		view.Update(view.Model{state.SelectedGameID, state.Games})
+	})
+	view.Create(model, evts).Run()
 }

@@ -14,7 +14,7 @@ type Game struct {
 	ModsEnabled []int
 }
 
-func (games GamesList) GameNames() []string {
+func (games GamesList) Names() []string {
 	var out []string
 	for _, game := range games {
 		out = append(out, game.Name)
