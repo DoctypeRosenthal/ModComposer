@@ -8,6 +8,6 @@ It uses git under the hood to make every change reversible.
 
 ### List of known working games: ###
 
-* S.T.A.L.K.E.R - Shadow Of Chernobyl
+* S.T.A.L.K.E.R games
 
 ### -> see gist of project under ./gist.txt ###
