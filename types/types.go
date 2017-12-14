@@ -1,20 +1,23 @@
 package types
 
-import (
-	"github.com/lxn/walk"
-)
-
 type AppState struct {
-	GamePath string
+	SelectedGameID int
+	Games          GamesList
 }
 
-type EventHandler struct {
-	SelectGame, DeleteFile func(string)
-	CopyFile               func(string, string)
+type GamesList []Game
+
+type Game struct {
+	Name    string
+	Path    string
+	ModsDir string
+	ModsEnabled []int
 }
 
-type UiControls struct {
-	OutTE *walk.TextEdit
+func (games GamesList) GameNames() []string {
+	var out []string
+	for _, game := range games {
+		out = append(out, game.Name)
+	}
+	return out
 }
-
-

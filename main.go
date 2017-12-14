@@ -2,11 +2,23 @@ package main
 
 import (
 	"ModComposer/file"
-	"ModComposer/state"
+	"ModComposer/store"
 	. "ModComposer/types"
 	"ModComposer/view"
 	"fmt"
 )
+
+const (
+	PATH_TO_STATE = "./state.json"
+)
+
+func check(e error, success string) {
+	if e != nil {
+		panic(e)
+	} else {
+		fmt.Println(success)
+	}
+}
 
 /*
  * BUILD COMMANDS
@@ -14,31 +26,48 @@ import (
  * without gcc installed AND without console: go build -ldflags="-H windowsgui -linkmode internal"
  */
 func main() {
-	var evt = EventHandler{
-		SelectGame: func(path string) {
-			state.GamePath(path)
+	var initState AppState
+	var err = file.JsonToObject(PATH_TO_STATE, &initState)
+	check(err, "State loaded from "+PATH_TO_STATE)
+
+	store.Initialise(initState)
+	st := store.GetState()
+
+	var cnf = view.Config{
+		Games: st.Games,
+
+		OnSelectGameFromList: func(i int) {
+			store.ActivateGameFromList(i)
 		},
-		CopyFile: func(src, dst string) {
+		OnAddGame: func(path string) {
+			store.AddGame(Game{ Name: "", Path: path, ModsDir: "" })
+			state := store.GetState()
+			store.ActivateGameFromList(len(state.Games)-1)
+			defer file.ObjectToJson(state, PATH_TO_STATE)
+		},
+		OnRemoveSelectedGameFromList: func() {
+			state := store.GetState()
+			i := state.SelectedGameID
+
+			if i == len(state.Games)-1 {
+				// select 2nd last game before deleting last
+				store.ActivateGameFromList(i-1)
+			}
+			store.RemoveGame(i)
+			defer file.ObjectToJson(state, PATH_TO_STATE)
+		},
+		OnCopyFile: func(src, dst string) {
 			fmt.Printf("Copying %s to %s\n", src, dst)
 			err := file.Copy(src, dst)
-			if err != nil {
-				fmt.Println(err)
-			} else {
-				fmt.Println("CopyFile succeeded!")
-			}
+			check(err, "CopyFile succeeded!")
 		},
-		DeleteFile: func(path string) {
+		OnDeleteFile: func(path string) {
 			fmt.Printf("Deleting %s\n", path)
 			err := file.Delete(path)
-			if err != nil {
-				fmt.Println(err)
-			} else {
-				fmt.Println("File successfully deleted!")
-			}
+			check(err, "File successfully deleted!")
 		},
 	}
 
-	state.Subscribe(view.Update)
-	view.Render(evt)
-
+	store.Subscribe(view.Update)
+	view.Create(cnf).Run()
 }

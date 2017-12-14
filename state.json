@@ -1,0 +1,17 @@
+{
+  "SelectedGameID": 0,
+  "Games": [
+    {
+      "Name": "Assasins Creed",
+      "Path": "E:\\Assasins Creed",
+      "ModsDir": "",
+      "ModsEnabled": [ 0, 3, 5 ]
+    },
+    {
+      "Name": "S.T.A.L.K.E.R.",
+      "Path": "E:\\S.T.A.L.K.E.R.",
+      "ModsDir": "",
+      "ModsEnabled": [ 0 ]
+    }
+  ]
+}

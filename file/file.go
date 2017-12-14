@@ -4,7 +4,25 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"io/ioutil"
+	"encoding/json"
 )
+
+func JsonToObject(path string, object interface{}) (err error) {
+	dat, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	return json.Unmarshal(dat, object)
+}
+
+func ObjectToJson(object interface{}, path string) (err error) {
+	dat, err := json.Marshal(object)
+	if err != nil {
+		panic(err)
+	}
+	return ioutil.WriteFile(path, dat, 0644)
+}
 
 // CopyFile copies a file from src to dst. If src and dst files exist, and are
 // the same, then return success. Otherise, attempt to create a hard link
