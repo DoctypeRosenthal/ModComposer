@@ -6,7 +6,7 @@ Experiment and always be 100% in control of your personal build.
 
 Uses git under the hood and depends on [https://github.com/lxn/walk](https://github.com/lxn/walk)
 
-### -> see gist of project under ./gist.txt ###
+#### \> see the [project's gist](./gist.txt)  ####
 
 ### List of games known working: ###
 
